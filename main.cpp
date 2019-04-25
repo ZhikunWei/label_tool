@@ -125,14 +125,17 @@ int main() {
             } else{
                 cnt = getCNT();
                 bool save_state = cv::imwrite(labelPrefix+std::to_string(cnt)+".jpg", frame(box));
-                cv::imwrite(labelPrefix+std::to_string(cnt)+"_full.jpg", frame);
-                std::ofstream out(labelPrefix+std::to_string(cnt)+ "_full.txt");
-                if(out.is_open())
+                if(isPositiveLabel)
                 {
-                    out<<box.x<<" "<<box.y<<" "<<box.width<<" "<<box.height<<std::endl;
-                    out.close();
-
+                    cv::imwrite(labelPrefix+std::to_string(cnt)+"_full.jpg", frame);
+                    std::ofstream out(labelPrefix+std::to_string(cnt)+ "_full.txt");
+                    if(out.is_open())
+                    {
+                        out<<box.x<<" "<<box.y<<" "<<box.width<<" "<<box.height<<std::endl;
+                        out.close();
+                    }
                 }
+
                 if(save_state)
                     std::cout<<"save "+labelPrefix<<cnt<<".jpg successfully."<<std::endl;
                 else std::cout<<"save failed."<<std::endl;
