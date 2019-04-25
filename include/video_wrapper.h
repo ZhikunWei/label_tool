@@ -22,7 +22,7 @@ public:
      * @param filename0
      * @param filename1
      */
-    VideoWrapper(const std::string& filename);
+    VideoWrapper(const std::string& filename, bool color_mode);
     ~VideoWrapper();
 
 
@@ -43,6 +43,7 @@ public:
 private:
     cv::Mat frame;
     cv::VideoCapture video;
+    bool color_mode;
 
 
 };

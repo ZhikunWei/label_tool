@@ -53,6 +53,8 @@ int getCNT(){
 
 int main() {
 
+    bool color_mode = true;
+
     int cnt = getCNT();
     int isPositiveLabel = 1;
     std::cout<<"input 1 to label positive target, input 0 to label negative target"<<std::endl;
@@ -67,7 +69,7 @@ int main() {
 
     else labelPrefix = "negative/";
 
-    VideoWrapper video("video.mp4");
+    VideoWrapper video("video.mp4", color_mode);
 
     if(!video.init()){
         std::cout<<"open video file failed"<<std::endl;

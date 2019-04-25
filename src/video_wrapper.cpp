@@ -5,8 +5,9 @@
 #include "video_wrapper.h"
 
 
-VideoWrapper::VideoWrapper(const std::string &filename0) {
+VideoWrapper::VideoWrapper(const std::string &filename0, bool color) {
     video.open(filename0);
+    color_mode = color;
 
 }
 
@@ -18,7 +19,9 @@ bool VideoWrapper::init() {
 }
 
 bool VideoWrapper::read(cv::Mat &src_left) {
-    return video.read(src_left);
+    if(color_mode)
+        return video.read(src_left);
+
     bool flag = video.read(frame);
 
     std::vector<cv::Mat> mv(3);
