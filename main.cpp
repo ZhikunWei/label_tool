@@ -39,7 +39,7 @@ std::string getPicFilename(){
 
 
 int main() {
-    std::string video_filename = "video.avi";
+    std::string video_filename = "/home/zhikun/Videos/video_icra/9.avi";
     bool color_mode = true;
 
 
@@ -104,14 +104,16 @@ int main() {
         cv::Rect2i box(center.x-width/2, center.y-height/2, width, height);      //  48*36
         KCFTracker kcf_tracker(true, true, false, false);
         kcf_tracker.init(box, frame);
+        std::cout<<"press space to save current box, press 'r' to relabel the wrong box.\n"
+                   "use 'wsad' to move box, use 'q/e' to turn the box smaller/bigger\n"
+                   "use 'jlik' to turn the box smaller/bigger just by one side"<<std::endl;
         while(video.read(frame))
         {
             box = kcf_tracker.update(frame);
             cv::Mat roi = frame.clone();
             cv::rectangle(roi, box, cv::Scalar(255, 0, 0), 1);
             cv::imshow("frame", roi);
-            std::cout<<"press space to save current box, press 'r' to relabel the wrong box.\n"
-                       "use 'wsad' to move box, use 'q/e' to turn the box smaller/bigger"<<std::endl;
+
             q = cv::waitKey(0);
 
 
@@ -178,7 +180,7 @@ int main() {
                             out.close();
                         }
                         if(save_state)
-                            std::cout<<"save "<<cnt++<<" images successfully."<<std::endl;
+                            std::cout<<cnt++<<std::endl;
                         else std::cout<<"save failed."<<std::endl;
                     }
                 }
