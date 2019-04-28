@@ -7,6 +7,7 @@
 #include "tracker/kcftracker.hpp"
 #include "tracker/tracker.h"
 #include "video_wrapper.h"
+#include <time.h>
 
 cv::Point center;
 
@@ -28,48 +29,40 @@ void on_mouse(int EVENT, int x, int y, int flags, void *userdata){
 }
 
 
-int getCNT(){
-    int cnt = 0;
-    std::ifstream in("cnt.txt");
-    if (in.is_open())
-    {
-        in>>cnt;
-        in.close();
-    }
 
-    cnt++;
-
-    std::ofstream out("cnt.txt");
-    if(out.is_open())
-    {
-        out<<cnt<<std::endl;
-        out.close();
-
-    }
-    return cnt;
+std::string getPicFilename(){
+    time_t t1 = time(NULL);
+    clock_t t2 = clock();
+    return std::to_string(time(NULL)) + std::to_string(clock());
 }
 
 
 
 int main() {
-
+    std::string video_filename = "video.avi";
     bool color_mode = true;
 
-    int cnt = getCNT();
+
     int isPositiveLabel = 1;
     std::cout<<"input 1 to label positive target, input 0 to label negative target"<<std::endl;
     std::cin>>isPositiveLabel;
     std::string labelPrefix;
-    if(isPositiveLabel){
-        int armor_id;
+    int armor_id=0, armor_color;
+
+    if(isPositiveLabel){   // set label id, be ready to make training set later
         std::cout<<"input the armor id you are labeling (check the video)"<<std::endl;
         std::cin>>armor_id;
-        labelPrefix = "positive/id"+std::to_string(armor_id)+"_";
-    }
+        if(armor_id == 7) armor_id = 5;
+        std::cout<<"choose armor color, 1 for blue, 2 for red"<<std::endl;
+        std::cin>>armor_color;
+        if(armor_color == 2) armor_id += 5;
 
+        labelPrefix = "positive/id_"+std::to_string(armor_id)+"_";
+    }
     else labelPrefix = "negative/";
 
-    VideoWrapper video("video.mp4", color_mode);
+    VideoWrapper video(video_filename, color_mode);
+    int cnt = 0;
 
     if(!video.init()){
         std::cout<<"open video file failed"<<std::endl;
@@ -125,24 +118,12 @@ int main() {
             if(q == 'r'){
                 break;
             } else{
-                cnt = getCNT();
-                bool save_state = cv::imwrite(labelPrefix+std::to_string(cnt)+".jpg", frame(box));
-                if(isPositiveLabel)
-                {
-                    cv::imwrite(labelPrefix+std::to_string(cnt)+"_full.jpg", frame);
-                    std::ofstream out(labelPrefix+std::to_string(cnt)+ "_full.txt");
-                    if(out.is_open())
-                    {
-                        out<<box.x<<" "<<box.y<<" "<<box.width<<" "<<box.height<<std::endl;
-                        out.close();
-                    }
-                }
+                std::string file_id = getPicFilename();
 
-                if(save_state)
-                    std::cout<<"save "+labelPrefix<<cnt<<".jpg successfully."<<std::endl;
-                else std::cout<<"save failed."<<std::endl;
+                bool save_state = true;
+                //save_state = cv::imwrite(labelPrefix+file_id+".jpg", frame(box));
 
-                if(q == 'd' || q == 'a' || q=='w' || q=='s'|| q=='q' || q=='e'){
+                if(q != ' '){
                     cv::Rect2i new_box;
                     switch (q){
                         case 'q':
@@ -165,6 +146,19 @@ int main() {
                         case 'd':
                             new_box.x = box.x+2; new_box.y = box.y;
                             break;
+                        case 'j':
+                            width -= 2; new_box.x = box.x; new_box.y = box.y;
+                            break;
+                        case 'l':
+                            width += 2; new_box.x = box.x; new_box.y = box.y;
+                            break;
+                        case 'k':
+                            height -=2; new_box.x = box.x; new_box.y = box.y;
+                            break;
+                        case 'i':
+                            height += 2; new_box.x = box.x; new_box.y = box.y;
+                            break;
+
                     }
                     new_box.width = width; new_box.height = height;
 
@@ -172,6 +166,21 @@ int main() {
                     if((cv::Rect2i(0,0,639,479) & new_box) != new_box)
                         break;
                     kcf_tracker.init(new_box, frame);
+
+                } else {
+                    if(isPositiveLabel)
+                    {
+                        save_state = save_state && cv::imwrite(labelPrefix+file_id+".jpg", frame);
+                        std::ofstream out(labelPrefix+file_id + ".txt");
+                        if(out.is_open())
+                        {
+                            out<<box.x<<","<<box.y<<","<<box.x+box.width<<","<<box.y+box.height<<","<<armor_id<<std::endl;
+                            out.close();
+                        }
+                        if(save_state)
+                            std::cout<<"save "<<cnt++<<" images successfully."<<std::endl;
+                        else std::cout<<"save failed."<<std::endl;
+                    }
                 }
 
 
