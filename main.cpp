@@ -15,12 +15,13 @@ cv::Point center;
 void on_mouse(int EVENT, int x, int y, int flags, void *userdata){
     cv::Mat frame;
     frame = *(cv::Mat*) userdata;
-    center.x = x;
-    center.y = y;
+
     switch(EVENT){
         case CV_EVENT_LBUTTONDOWN:{
             //cv::Rect2i box(center.x-18, center.y-24, 36, 48);
             //cv::rectangle(frame, box, cv::Scalar(255,0,0), 1);
+            center.x = x;
+            center.y = y;
             std::cout<<x<<", "<<y<<std::endl;
 
         }
@@ -31,15 +32,13 @@ void on_mouse(int EVENT, int x, int y, int flags, void *userdata){
 
 
 std::string getPicFilename(){
-    time_t t1 = time(NULL);
-    clock_t t2 = clock();
     return std::to_string(time(NULL)) + std::to_string(clock());
 }
 
 
 
 int main() {
-    std::string video_filename = "/home/zhikun/Videos/video_icra/9.avi";
+    std::string video_filename = "/home/zhikun/Videos/video_color/blue1-4.avi";
     bool color_mode = true;
 
 
@@ -170,7 +169,7 @@ int main() {
                     kcf_tracker.init(new_box, frame);
 
                 } else {
-                    if(isPositiveLabel)
+                    if(isPositiveLabel && (cnt++) % 3 == 0)
                     {
                         save_state = save_state && cv::imwrite(labelPrefix+file_id+".jpg", frame);
                         std::ofstream out(labelPrefix+file_id + ".txt");
@@ -180,7 +179,7 @@ int main() {
                             out.close();
                         }
                         if(save_state)
-                            std::cout<<cnt++<<std::endl;
+                            std::cout<<cnt/3<<std::endl;
                         else std::cout<<"save failed."<<std::endl;
                     }
                 }
