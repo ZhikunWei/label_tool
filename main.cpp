@@ -38,7 +38,7 @@ std::string getPicFilename(){
 
 
 int main() {
-    std::string video_filename = "/home/zhikun/Videos/video_color/blue1-4.avi";
+    std::string video_filename = "/home/zhikun/Videos/video_color/red2-1.avi";
     bool color_mode = true;
 
 
@@ -91,8 +91,13 @@ int main() {
             q=cv::waitKey(0);
             if(q -'0' > 0 && q-'0' <=9)
             {
-                labelPrefix = "positive/id"+std::to_string(q-'0')+"_";
-                std::cout<<"change to label armor id "<< q-'0'<<std::endl;
+                armor_id = q-'0';
+                if(armor_id == 7) armor_id = 5;
+                std::cout<<"choose armor color, 1 for blue, 2 for red"<<std::endl;
+                std::cin>>armor_color;
+                if(armor_color == 2) armor_id += 5;
+                labelPrefix = "positive/id"+std::to_string(armor_id)+"_";
+                std::cout<<"change to label armor id "<< armor_id<<std::endl;
             }
 
             if(q == ' ') break;
@@ -169,7 +174,7 @@ int main() {
                     kcf_tracker.init(new_box, frame);
 
                 } else {
-                    if(isPositiveLabel && (cnt++) % 3 == 0)
+                    if(isPositiveLabel )
                     {
                         save_state = save_state && cv::imwrite(labelPrefix+file_id+".jpg", frame);
                         std::ofstream out(labelPrefix+file_id + ".txt");
@@ -179,7 +184,7 @@ int main() {
                             out.close();
                         }
                         if(save_state)
-                            std::cout<<cnt/3<<std::endl;
+                            std::cout<<cnt++<<std::endl;
                         else std::cout<<"save failed."<<std::endl;
                     }
                 }
