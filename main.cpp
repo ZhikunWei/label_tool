@@ -8,6 +8,9 @@
 #include "tracker/tracker.h"
 #include "video_wrapper.h"
 #include <time.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/stat.h>
 
 cv::Point center;
 
@@ -41,10 +44,9 @@ int main() {
     std::string video_filename = "/home/zhikun/Videos/video_color/red2-1.avi";
     bool color_mode = true;
 
-
     int isPositiveLabel = 1;
-    std::cout<<"input 1 to label positive target, input 0 to label negative target"<<std::endl;
-    std::cin>>isPositiveLabel;
+    //std::cout<<"input 1 to label positive target, input 0 to label negative target"<<std::endl;
+    //std::cin>>isPositiveLabel;
     std::string labelPrefix;
     int armor_id=0, armor_color;
 
@@ -55,8 +57,10 @@ int main() {
         std::cout<<"choose armor color, 1 for blue, 2 for red"<<std::endl;
         std::cin>>armor_color;
         if(armor_color == 2) armor_id += 5;
-
-        labelPrefix = "positive/id_"+std::to_string(armor_id)+"_";
+        std::string pathname = "id"+std::to_string(armor_id);
+        if(access(pathname.data(), F_OK) == -1)
+            mkdir(pathname.data(), 0777);
+        labelPrefix = pathname + "/id_"+std::to_string(armor_id)+"_";
     }
     else labelPrefix = "negative/";
 
@@ -85,20 +89,10 @@ int main() {
             cv::imshow("frame", frame);
             if(isPositiveLabel)
                 std::cout<<"click the center of armor with ID. \n then press space to confirm, "
-                       "press 'r' to label next frame, press digit to change armor id"<<std::endl;
+                       "press 'r' to label next frame"<<std::endl;
             else
                 std::cout<<"click an area and press space"<<std::endl;
             q=cv::waitKey(0);
-            if(q -'0' > 0 && q-'0' <=9)
-            {
-                armor_id = q-'0';
-                if(armor_id == 7) armor_id = 5;
-                std::cout<<"choose armor color, 1 for blue, 2 for red"<<std::endl;
-                std::cin>>armor_color;
-                if(armor_color == 2) armor_id += 5;
-                labelPrefix = "positive/id"+std::to_string(armor_id)+"_";
-                std::cout<<"change to label armor id "<< armor_id<<std::endl;
-            }
 
             if(q == ' ') break;
 
@@ -174,7 +168,7 @@ int main() {
                     kcf_tracker.init(new_box, frame);
 
                 } else {
-                    if(isPositiveLabel )
+                    if(isPositiveLabel && (cnt++) %2 == 0 )
                     {
                         save_state = save_state && cv::imwrite(labelPrefix+file_id+".jpg", frame);
                         std::ofstream out(labelPrefix+file_id + ".txt");
@@ -184,7 +178,7 @@ int main() {
                             out.close();
                         }
                         if(save_state)
-                            std::cout<<cnt++<<std::endl;
+                            std::cout<<cnt/2<<std::endl;
                         else std::cout<<"save failed."<<std::endl;
                     }
                 }
