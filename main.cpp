@@ -168,6 +168,8 @@ int main() {
                     kcf_tracker.init(new_box, frame);
 
                 } else {
+                    if((cv::Rect2i(0,0,639,479) & box) != box)
+                        break;
                     if(isPositiveLabel && (cnt++) %2 == 0 )
                     {
                         save_state = save_state && cv::imwrite(labelPrefix+file_id+".jpg", frame);
