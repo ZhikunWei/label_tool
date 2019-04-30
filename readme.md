@@ -1,5 +1,5 @@
 # 使用方法：
-##需要安装opencv, 更换main中的video路径
+##需要安装opencv, 更换main中的video路径 <br>
 mkdir build <br>
 cd build  <br>
 cmake ..  <br>
