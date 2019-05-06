@@ -41,7 +41,7 @@ std::string getPicFilename(){
 
 
 int main() {
-    std::string video_filename = "/home/zhikun/Videos/video_color/red2-1.avi";
+    std::string video_filename = "/home/zhikun/Videos/video_color/red_1.mp4";
     bool color_mode = true;
 
     int isPositiveLabel = 1;
@@ -105,7 +105,7 @@ int main() {
         std::cout<<"press space to save current box, press 'r' to relabel the wrong box.\n"
                    "use 'wsad' to move box, use 'q/e' to turn the box smaller/bigger\n"
                    "use 'jlik' to turn the box smaller/bigger just by one side"<<std::endl;
-        while(video.read(frame))
+        while(true)
         {
             box = kcf_tracker.update(frame);
             cv::Mat roi = frame.clone();
@@ -168,9 +168,9 @@ int main() {
                     kcf_tracker.init(new_box, frame);
 
                 } else {
-                    if((cv::Rect2i(0,0,639,479) & box) != box)
+                    if((cv::Rect2i(0,0,640,480) & box) != box)
                         break;
-                    if(isPositiveLabel && (cnt++) %2 == 0 )
+                    if(isPositiveLabel  )
                     {
                         save_state = save_state && cv::imwrite(labelPrefix+file_id+".jpg", frame);
                         std::ofstream out(labelPrefix+file_id + ".txt");
@@ -180,8 +180,9 @@ int main() {
                             out.close();
                         }
                         if(save_state)
-                            std::cout<<cnt/2<<std::endl;
+                            std::cout<<cnt++<<std::endl;
                         else std::cout<<"save failed."<<std::endl;
+                        video.read(frame);
                     }
                 }
 
