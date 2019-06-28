@@ -41,30 +41,34 @@ std::string getPicFilename(){
 
 
 int main() {
-    std::string video_filename = "/home/zhikun/Videos/video_color/red_1.mp4";
+    //4,5,10,39
+    std::string video_filename = "/home/zhikun/Videos/armor_id/39.avi";
     bool color_mode = true;
+    VideoWrapper video(video_filename, color_mode);
+    cv::Mat frame;
+
 
     int isPositiveLabel = 1;
-    //std::cout<<"input 1 to label positive target, input 0 to label negative target"<<std::endl;
-    //std::cin>>isPositiveLabel;
+    std::cout<<"input 1 to label positive target, input 0 to label negative target"<<std::endl;
+    std::cin>>isPositiveLabel;
     std::string labelPrefix;
     int armor_id=0, armor_color;
 
     if(isPositiveLabel){   // set label id, be ready to make training set later
         std::cout<<"input the armor id you are labeling (check the video)"<<std::endl;
         std::cin>>armor_id;
-        if(armor_id == 7) armor_id = 5;
+        if(armor_id == 7) armor_id = 6;
         std::cout<<"choose armor color, 1 for blue, 2 for red"<<std::endl;
         std::cin>>armor_color;
-        if(armor_color == 2) armor_id += 5;
+        if(armor_color == 2) armor_id += 7;
         std::string pathname = "id"+std::to_string(armor_id);
         if(access(pathname.data(), F_OK) == -1)
             mkdir(pathname.data(), 0777);
         labelPrefix = pathname + "/id_"+std::to_string(armor_id)+"_";
     }
-    else labelPrefix = "negative/";
+    else labelPrefix = "negative/id_neg_";
 
-    VideoWrapper video(video_filename, color_mode);
+
     int cnt = 0;
 
     if(!video.init()){
@@ -73,11 +77,10 @@ int main() {
     }
 
 
-    cv::Mat frame;
+
     int  width = 48, height = 36;
 
-    for(int i = 0; i < 5; i++)
-        video.read(frame);
+
     //std::cout<<frame.type()<<std::endl;
     int q;
     while(video.read(frame))
@@ -170,7 +173,7 @@ int main() {
                 } else {
                     if((cv::Rect2i(0,0,640,480) & box) != box)
                         break;
-                    if(isPositiveLabel  )
+                    if(cnt % 2 == 0)
                     {
                         save_state = save_state && cv::imwrite(labelPrefix+file_id+".jpg", frame);
                         std::ofstream out(labelPrefix+file_id + ".txt");
@@ -180,14 +183,12 @@ int main() {
                             out.close();
                         }
                         if(save_state)
-                            std::cout<<cnt++<<std::endl;
+                            std::cout<<cnt/2<<std::endl;
                         else std::cout<<"save failed."<<std::endl;
                         video.read(frame);
                     }
+                    cnt++;
                 }
-
-
-
             }
         }
 
