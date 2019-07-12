@@ -42,7 +42,7 @@ std::string getPicFilename(){
 
 int main() {
     //4,5,10,39
-    std::string video_filename = "/home/zhikun/Videos/armor_id/39.avi";
+    std::string video_filename = "/home/zhikun/Videos/armor_id/11.avi";
     bool color_mode = true;
     VideoWrapper video(video_filename, color_mode);
     cv::Mat frame;
@@ -57,7 +57,8 @@ int main() {
     if(isPositiveLabel){   // set label id, be ready to make training set later
         std::cout<<"input the armor id you are labeling (check the video)"<<std::endl;
         std::cin>>armor_id;
-        if(armor_id == 7) armor_id = 6;
+        if(armor_id >= 7) armor_id -= 1;
+
         std::cout<<"choose armor color, 1 for blue, 2 for red"<<std::endl;
         std::cin>>armor_color;
         if(armor_color == 2) armor_id += 7;
@@ -191,8 +192,6 @@ int main() {
                 }
             }
         }
-
-
     }
 
 
