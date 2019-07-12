@@ -173,7 +173,7 @@ int main() {
                 } else {
                     if((cv::Rect2i(0,0,640,480) & box) != box)
                         break;
-                    if(cnt % 2 == 0)
+                    if(cnt % 5 == 0)
                     {
                         save_state = save_state && cv::imwrite(labelPrefix+file_id+".jpg", frame);
                         std::ofstream out(labelPrefix+file_id + ".txt");
@@ -183,7 +183,7 @@ int main() {
                             out.close();
                         }
                         if(save_state)
-                            std::cout<<cnt/2<<std::endl;
+                            std::cout<<cnt/5<<std::endl;
                         else std::cout<<"save failed."<<std::endl;
                         video.read(frame);
                     }
